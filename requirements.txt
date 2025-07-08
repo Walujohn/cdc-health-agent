@@ -1,0 +1,7 @@
+langgraph
+langchain
+mcp-agent
+faiss-cpu
+requests
+beautifulsoup4
+openai
