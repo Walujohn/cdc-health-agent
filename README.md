@@ -55,7 +55,7 @@ Cloud/MLOps Ready: Code stubs for Google Vertex AI, Docker, and cloud deployment
      
       python -m cdc_agent.agent
   
-      💡 Sample Questions
+     💡 Sample Questions
       
       “What are the symptoms of flu?”
       
