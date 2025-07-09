@@ -81,6 +81,40 @@ Batch processing or scheduled runs
 
 Docker Compose for agent + tracking server
 
+👩‍💻 Accessibility & Fullstack Experience
+I am a certified accessibility tester and have professional experience ensuring web applications meet WCAG and Section 508 standards.
+
+I have extensive Ruby on Rails and fullstack development experience alongside Python and AI/ML work.
+
+I care deeply about accessible, inclusive AI interfaces and would prioritize accessible UX, ARIA best practices, and automated/manual accessibility testing in any production deployment.
+
+See the code example below for a quick accessibility markup stub.
+Accessibility would be a core focus of any future UI.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CDC Health Agent – Accessible Demo</title>
+</head>
+<body>
+  <main>
+    <h1>CDC Health Agent – Accessible Demo</h1>
+    <form aria-labelledby="cdc-question-label">
+      <label id="cdc-question-label" for="question">
+        Ask a CDC health question:
+      </label>
+      <input type="text" id="question" name="question" aria-required="true" />
+      <button type="submit">Ask</button>
+    </form>
+    <section aria-live="polite">
+      <!-- The agent's answer would appear here -->
+      <p id="answer" tabindex="0"></p>
+    </section>
+  </main>
+</body>
+</html>
+
 Author
 John Harris
 GitHub: https://github.com/Walujohn
