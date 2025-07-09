@@ -91,6 +91,7 @@ I care deeply about accessible, inclusive AI interfaces and would prioritize acc
 See the code example below for a quick accessibility markup stub.
 Accessibility would be a core focus of any future UI.
 
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -114,6 +115,7 @@ Accessibility would be a core focus of any future UI.
   </main>
 </body>
 </html>
+```
 
 Author
 John Harris
