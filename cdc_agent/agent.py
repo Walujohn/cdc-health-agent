@@ -46,6 +46,16 @@ def summarize_node(state: AgentState) -> AgentState:
 
     llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     context = "\n".join(relevant_chunks)
+
+    # --- Few-shot (k-shot) prompt example for better LLM output ---
+    # EXAMPLES = """
+    # Q: What are the symptoms of the flu?
+    # A: The main symptoms of the flu are fever, chills, sore throat, cough, runny nose, and body aches.
+    
+    # Q: How does COVID-19 spread?
+    # A: COVID-19 mainly spreads through respiratory droplets from coughs, sneezes, or talking, and through close contact.
+    # """
+
     prompt = f"""Here is some CDC.gov content:\n{context}\n\nAnswer this question as simply and accurately as possible:\n{state['question']}"""
     print(f"[LOG] LLM prompt sent:\n{'-'*40}\n{prompt[:400]}...\n{'-'*40}")
     summary = llm.invoke(prompt)

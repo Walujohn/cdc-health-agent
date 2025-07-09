@@ -117,6 +117,26 @@ Accessibility would be a core focus of any future UI.
 </html>
 ```
 
+🧠 Model Selection Principles
+This project is designed for easy model swapping and selection.
+In production, I would evaluate models based on:
+
+Cost (e.g., per-token or per-request pricing)
+
+Latency (response time requirements)
+
+Quality/Accuracy (“Brains”—how complex the reasoning or summarization must be)
+
+Examples:
+
+For fast, high-volume Q&A: OpenAI GPT-3.5 or Vertex AI Gemini Pro
+
+For more nuanced/critical answers: GPT-4, Gemini Ultra, or a fine-tuned Llama/Claude
+
+For compliance/data residency: Enterprise endpoints (Vertex AI, AWS Bedrock, or Azure OpenAI)
+
+The project’s structure (see agent.py) allows swapping LLM endpoints or embedding models with minimal changes.
+
 Author
 John Harris
 GitHub: https://github.com/Walujohn
