@@ -145,6 +145,10 @@ For compliance/data residency: Enterprise endpoints (Vertex AI, AWS Bedrock, or 
 
 The project’s structure (see agent.py) allows swapping LLM endpoints or embedding models with minimal changes.
 
+Testing
+
+Run pytest tests/ to verify basic routing and utility functions.
+
 Author
 John Harris
 GitHub: https://github.com/Walujohn

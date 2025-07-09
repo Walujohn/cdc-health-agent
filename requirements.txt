@@ -9,3 +9,4 @@ openai
 mlflow
 google-cloud-aiplatform
 typing_extensions
+pytest
