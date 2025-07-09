@@ -1,7 +1,11 @@
 langgraph
 langchain
-mcp-agent
+langchain-openai
+langchain-community
 faiss-cpu
 requests
 beautifulsoup4
 openai
+mlflow
+google-cloud-aiplatform
+typing_extensions
