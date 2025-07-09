@@ -20,12 +20,16 @@ Cloud/MLOps Ready: Code stubs for Google Vertex AI, Docker, and cloud deployment
 🏃‍♂️ Usage
   1. Clone and Set Up
   git clone https://github.com/Walujohn/cdc-health-agent.git
+
   cd cdc-health-agent
+  
   python3 -m venv venv
+  
   source venv/bin/activate
+  
   pip install -r requirements.txt
   
-  2. Set Environment Variables
+  3. Set Environment Variables
   export OPENAI_API_KEY="sk-..." # OpenAI API key
   export LANGCHAIN_TRACING_V2="true"
   export LANGCHAIN_API_KEY="lsm_..." # LangSmith API key
@@ -35,12 +39,12 @@ Cloud/MLOps Ready: Code stubs for Google Vertex AI, Docker, and cloud deployment
   
       Tip: Add these to your .bashrc and run source ~/.bashrc.
   
-  3. Start MLflow Tracking UI (optional but recommended)
+  4. Start MLflow Tracking UI (optional but recommended)
   mlflow ui
   
       Visit http://localhost:5000 in your browser.
   
-  4. Run the Agent
+  5. Run the Agent
   python -m cdc_agent.agent
   
       💡 Sample Questions
