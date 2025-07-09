@@ -33,12 +33,12 @@ Cloud/MLOps Ready: Code stubs for Google Vertex AI, Docker, and cloud deployment
   export LANGCHAIN_PROJECT="cdc-agent"
   export MLFLOW_TRACKING_URI="http://localhost:5000"
   
-  Tip: Add these to your .bashrc and run source ~/.bashrc.
+    Tip: Add these to your .bashrc and run source ~/.bashrc.
   
   3. Start MLflow Tracking UI (optional but recommended)
   mlflow ui
   
-  Visit http://localhost:5000 in your browser.
+    Visit http://localhost:5000 in your browser.
   
   4. Run the Agent
   python -m cdc_agent.agent
