@@ -46,12 +46,14 @@ Cloud/MLOps Ready: Code stubs for Google Vertex AI, Docker, and cloud deployment
       Tip: Add these to your .bashrc and run source ~/.bashrc.
   
   5. Start MLflow Tracking UI (optional but recommended)
-  mlflow ui
+  
+      mlflow ui
   
       Visit http://localhost:5000 in your browser.
   
   6. Run the Agent
-  python -m cdc_agent.agent
+     
+      python -m cdc_agent.agent
   
       💡 Sample Questions
       
