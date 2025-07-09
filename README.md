@@ -19,15 +19,15 @@ Cloud/MLOps Ready: Code stubs for Google Vertex AI, Docker, and cloud deployment
 
 🏃‍♂️ Usage
   1. Clone and Set Up
-  git clone https://github.com/Walujohn/cdc-health-agent.git
-
-  cd cdc-health-agent
-  
-  python3 -m venv venv
-  
-  source venv/bin/activate
-  
-  pip install -r requirements.txt
+      git clone https://github.com/Walujohn/cdc-health-agent.git
+    
+      cd cdc-health-agent
+      
+      python3 -m venv venv
+      
+      source venv/bin/activate
+      
+      pip install -r requirements.txt
   
   3. Set Environment Variables
   export OPENAI_API_KEY="sk-..." # OpenAI API key
