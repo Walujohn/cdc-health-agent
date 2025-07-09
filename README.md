@@ -30,21 +30,27 @@ Cloud/MLOps Ready: Code stubs for Google Vertex AI, Docker, and cloud deployment
       pip install -r requirements.txt
   
   3. Set Environment Variables
+
   export OPENAI_API_KEY="sk-..." # OpenAI API key
+  
   export LANGCHAIN_TRACING_V2="true"
+  
   export LANGCHAIN_API_KEY="lsm_..." # LangSmith API key
+  
   export LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
+  
   export LANGCHAIN_PROJECT="cdc-agent"
-  export MLFLOW_TRACKING_URI="http://localhost:5000"
   
-      Tip: Add these to your .bashrc and run source ~/.bashrc.
+  export MLFLOW_TRACKING_URI="http://localhost:5000" 
   
-  4. Start MLflow Tracking UI (optional but recommended)
+  Tip: Add these to your .bashrc and run source ~/.bashrc.
+  
+  5. Start MLflow Tracking UI (optional but recommended)
   mlflow ui
   
       Visit http://localhost:5000 in your browser.
   
-  5. Run the Agent
+  6. Run the Agent
   python -m cdc_agent.agent
   
       💡 Sample Questions
