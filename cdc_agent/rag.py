@@ -1,11 +1,9 @@
-import os
-from openai import OpenAI as OpenAIClient
 import faiss
 import numpy as np
 from langchain_openai import OpenAIEmbeddings
 
 def chunk_text(text, chunk_size=500, overlap=100):
-    """Splits text into overlapping chunks for embeddings/search."""
+    """Split text into overlapping chunks for embeddings/search."""
     chunks = []
     i = 0
     while i < len(text):
@@ -19,7 +17,7 @@ def embed_chunks(chunks, embedding_model):
 
 def build_faiss_index(chunks, embeddings):
     """Build a FAISS index from text chunks and their embeddings."""
-    d = len(embeddings[0])  # Dimensionality
+    d = len(embeddings[0])
     index = faiss.IndexFlatL2(d)
     index.add(np.array(embeddings).astype('float32'))
     return index
