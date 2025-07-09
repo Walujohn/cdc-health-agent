@@ -1,4 +1,5 @@
 CDC Health Advisory Agent
+
 A proof-of-concept Python agentic app for retrieving and summarizing authoritative CDC health guidance using LangGraph, RAG, and tool integration.
 Built to demonstrate agentic orchestration, RAG, MLOps, and cloud readiness (Google Vertex AI, MLflow, LangSmith) for engineering experiments and real-world production.
 
@@ -43,6 +44,7 @@ Visit http://localhost:5000 in your browser.
 python -m cdc_agent.agent
 
 💡 Sample Questions
+
 “What are the symptoms of flu?”
 
 “What does the CDC say about mpox vaccines?”
@@ -67,6 +69,7 @@ response = model.predict("Summarize this CDC content:\n" + context)
 print(response.text)
 
 📝 For Interviewers
+
 See cdc_agent/agent.py for workflow logic, experiment tracking, and logging.
 
 See cdc_agent/tools/cdc_scraper.py for the CDC.gov retrieval tool.
@@ -74,6 +77,7 @@ See cdc_agent/tools/cdc_scraper.py for the CDC.gov retrieval tool.
 Architecture is MLOps/cloud-ready for enterprise deployment.
 
 ✨ Future Extensions
+
 Vertex AI/Gemini/Anthropic endpoint support
 
 Slack, email, or SMS notifications
@@ -83,6 +87,7 @@ Batch processing or scheduled runs
 Docker Compose for agent + tracking server
 
 👩‍💻 Accessibility & Fullstack Experience
+
 I am a certified accessibility tester and have professional experience ensuring web applications meet WCAG and Section 508 standards.
 
 I have extensive Ruby on Rails and fullstack development experience alongside Python and AI/ML work.
@@ -119,6 +124,7 @@ Accessibility would be a core focus of any future UI.
 ```
 
 🧠 Model Selection Principles
+
 This project is designed for easy model swapping and selection.
 In production, I would evaluate models based on:
 
