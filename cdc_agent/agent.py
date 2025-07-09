@@ -15,33 +15,40 @@ class AgentState(TypedDict):
 
 def plan_node(state: AgentState) -> AgentState:
     q = state["question"].lower()
+    print(f"[LOG] Planning topic for question: {q}")
     if "flu" in q:
         topic = "flu"
     elif "monkeypox" in q or "mpox" in q:
         topic = "monkeypox"
     else:
         topic = "covid"
+    print(f"[LOG] Topic chosen: {topic}")
     return {"topic": topic}
 
 def fetch_node(state: AgentState) -> AgentState:
+    print(f"[LOG] Fetching CDC guidance for topic: {state['topic']}")
     info = fetch_cdc_guidance(state["topic"])
-    # Graceful error handling if info is missing or error message present
     if not info or "Error fetching" in info or "not found" in info:
+        print(f"[WARN] Failed to fetch CDC guidance.")
         info = "Sorry, I couldn't retrieve up-to-date CDC guidance right now."
+    print(f"[LOG] CDC info length: {len(info)} chars")
     return {"cdc_info": info}
 
 def summarize_node(state: AgentState) -> AgentState:
-    # RAG step: chunk, embed, index, retrieve
+    print(f"[LOG] Running RAG + LLM summarization for: {state['question']}")
     embedding_model = OpenAIEmbeddings(openai_api_key=os.getenv("OPENAI_API_KEY"))
     chunks = chunk_text(state["cdc_info"])
     embeddings = embed_chunks(chunks, embedding_model)
     index = build_faiss_index(chunks, embeddings)
     relevant_chunks = retrieve_relevant_chunks(state["question"], chunks, index, embedding_model, top_k=3)
+    print(f"[LOG] Retrieved {len(relevant_chunks)} relevant chunks.")
 
     llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     context = "\n".join(relevant_chunks)
     prompt = f"""Here is some CDC.gov content:\n{context}\n\nAnswer this question as simply and accurately as possible:\n{state['question']}"""
+    print(f"[LOG] LLM prompt sent:\n{'-'*40}\n{prompt[:400]}...\n{'-'*40}")
     summary = llm.invoke(prompt)
+    print(f"[LOG] LLM summary output length: {len(summary)} chars")
     return {"summary": summary}
 
 def cdc_source_url(topic: str) -> str:
