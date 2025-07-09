@@ -74,11 +74,17 @@ Production Deployment: Docker-ready; can be run as a Cloud Run or Vertex AI cust
 Vertex AI Example Stub:
 
 from vertexai.language_models import TextEmbeddingModel
+
 model = TextEmbeddingModel.from_pretrained("textembedding-gecko@latest")
+
 embeddings = model.get_embeddings(["your text here"])
+
 from vertexai.language_models import TextGenerationModel
+
 model = TextGenerationModel.from_pretrained("text-bison@001")
+
 response = model.predict("Summarize this CDC content:\n" + context)
+
 print(response.text)
 
 📝 For Interviewers
