@@ -18,40 +18,41 @@ LLM Prompt Tracing: LangSmith for prompt/response and workflow logging.
 Cloud/MLOps Ready: Code stubs for Google Vertex AI, Docker, and cloud deployment.
 
 🏃‍♂️ Usage
-1. Clone and Set Up
-git clone https://github.com/Walujohn/cdc-health-agent.git
-cd cdc-health-agent
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-2. Set Environment Variables
-export OPENAI_API_KEY="sk-..." # OpenAI API key
-export LANGCHAIN_TRACING_V2="true"
-export LANGCHAIN_API_KEY="lsm_..." # LangSmith API key
-export LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
-export LANGCHAIN_PROJECT="cdc-agent"
-export MLFLOW_TRACKING_URI="http://localhost:5000"
-
-Tip: Add these to your .bashrc and run source ~/.bashrc.
-
-3. Start MLflow Tracking UI (optional but recommended)
-mlflow ui
-
-Visit http://localhost:5000 in your browser.
-
-4. Run the Agent
-python -m cdc_agent.agent
-
-💡 Sample Questions
-
-“What are the symptoms of flu?”
-
-“What does the CDC say about mpox vaccines?”
-
-“How is COVID-19 spread?”
+  1. Clone and Set Up
+  git clone https://github.com/Walujohn/cdc-health-agent.git
+  cd cdc-health-agent
+  python3 -m venv venv
+  source venv/bin/activate
+  pip install -r requirements.txt
+  
+  2. Set Environment Variables
+  export OPENAI_API_KEY="sk-..." # OpenAI API key
+  export LANGCHAIN_TRACING_V2="true"
+  export LANGCHAIN_API_KEY="lsm_..." # LangSmith API key
+  export LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
+  export LANGCHAIN_PROJECT="cdc-agent"
+  export MLFLOW_TRACKING_URI="http://localhost:5000"
+  
+  Tip: Add these to your .bashrc and run source ~/.bashrc.
+  
+  3. Start MLflow Tracking UI (optional but recommended)
+  mlflow ui
+  
+  Visit http://localhost:5000 in your browser.
+  
+  4. Run the Agent
+  python -m cdc_agent.agent
+  
+  💡 Sample Questions
+  
+  “What are the symptoms of flu?”
+  
+  “What does the CDC say about mpox vaccines?”
+  
+  “How is COVID-19 spread?”
 
 ☁️ Cloud/MLOps and Vertex AI Readiness
+
 Experiment Tracking: MLflow is integrated locally; can be configured for Vertex AI Metadata or cloud MLflow.
 
 LLM/Embeddings: Easily swap OpenAI for Vertex AI endpoints with minimal code change.
