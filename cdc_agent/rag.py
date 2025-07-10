@@ -1,3 +1,8 @@
+"""
+rag.py: RAG utilities for chunking, embedding, building vector DBs (FAISS),
+and retrieving relevant chunks (single or multi-DB).
+"""
+
 import faiss
 import numpy as np
 from langchain_openai import OpenAIEmbeddings
@@ -27,3 +32,18 @@ def retrieve_relevant_chunks(query, chunks, index, embedding_model, top_k=3):
     query_vec = np.array(embedding_model.embed_query(query)).astype('float32').reshape(1, -1)
     D, I = index.search(query_vec, top_k)
     return [chunks[i] for i in I[0]]
+
+def multi_vector_retrieve(query, dbs, embedding_model, top_k=3):
+    all_results = []
+    for db in dbs:
+        chunks = db["chunks"]
+        index = db["index"]
+        D, I = index.search(
+            np.array(embedding_model.embed_query(query)).astype('float32').reshape(1, -1),
+            top_k
+        )
+        results = [(chunks[i], D[0][j]) for j, i in enumerate(I[0])]
+        all_results.extend(results)
+    # Sort by similarity (lowest distance first)
+    all_results.sort(key=lambda x: x[1])
+    return [r[0] for r in all_results[:top_k]]

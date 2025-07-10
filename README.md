@@ -167,6 +167,20 @@ Testing
 
 Run pytest tests/ to verify basic routing and utility functions.
 
+---
+**Note on Interview-Inspired Improvements**
+
+This POC reflects direct feedback from a technical interview.  
+Key enhancements address:
+
+- Agentic link-following and navigation (multi-page CDC content scraping)
+- Multi-vector database RAG (retrieves from multiple FAISS indexes)
+- Pluggable LLM provider adapter (OpenAI, Vertex AI, Anthropic)
+- API-first code stubs and production comments
+
+For details, see the implementation and comments in `cdc_agent/tools/cdc_scraper.py` and `cdc_agent/llm.py`.
+---
+
 Author
 John Harris
 GitHub: https://github.com/Walujohn
