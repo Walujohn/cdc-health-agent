@@ -1,0 +1,14 @@
+artifact_uri: mlflow-artifacts:/0/9237fd8676f54b0b983339ab6053fcdf/artifacts
+end_time: 1752113237980
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 9237fd8676f54b0b983339ab6053fcdf
+run_name: cdc-agent-1752113185
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1752113185511
+status: 3
+tags: []
+user_id: ubuntujohn
