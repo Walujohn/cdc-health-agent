@@ -182,6 +182,23 @@ Key enhancements address:
   For details, see the implementation and comments in `cdc_agent/tools/cdc_scraper.py` and `cdc_agent/llm.py`.
 ---
 
+## 🚦 LLM Guardrails & Policy Controls
+
+- The agent can be integrated with frameworks like [NVIDIA Nemo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails) or LangChain’s output parsers to enforce policy, redaction, or compliance constraints on LLM responses.
+- This enables government or regulated deployments to block PII, filter unsafe outputs, enforce style/formatting, and log violations.
+
+## 🛡️ Government Client Considerations
+
+- **Trusted Data Sources:** The agent retrieves content exclusively from CDC.gov and .gov domains to ensure data authenticity and public trust.
+- **PII Protection:** No personal or sensitive user data is collected, stored, or transmitted.
+- **Audit-Ready Logging:** MLflow and LangSmith logging enable full traceability and auditability of model behavior, supporting compliance and troubleshooting.
+- **Extensible for FedRAMP/ATO:** Architecture is ready to integrate with government cloud and security practices (e.g., VPC, access controls, logging).
+
+## 🔌 Model Context Protocol (MCP) Ready
+
+This agent is structured to support the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction), an open standard for connecting LLMs and tools. 
+See `cdc_agent/mcp_stub.py` for an example integration stub. In production, this allows the agent to be used as a plug-and-play MCP server or to consume data/tools from any MCP-compliant client or server (such as Claude, Gemini, and future enterprise IDEs).
+
 Author
 John Harris
 GitHub: https://github.com/Walujohn

@@ -17,6 +17,23 @@ class AgentState(TypedDict):
     cdc_info: str
     summary: str
 
+# def apply_guardrails(text):
+#     """
+#     Stub for LLM output guardrails.
+#     In production, integrate policy checks here (e.g., with Nemo Guardrails, LangChain OutputParser, or custom code).
+#     For demo, redacts the word 'password' and email addresses as a placeholder.
+#     """
+#     import re
+#     # Redact email addresses (very basic example)
+#     text = re.sub(r'\b[\w.-]+?@\w+?\.\w+?\b', '[REDACTED EMAIL]', text)
+#     # Redact forbidden keywords (demo)
+#     text = text.replace("password", "[REDACTED]")
+#     return text
+
+# Usage: after LLM response
+# summary = llm.invoke(prompt)
+# summary = apply_guardrails(summary)
+
 def plan_node(state: AgentState) -> AgentState:
     q = state["question"].lower()
     print(f"[LOG] Planning topic for question: {q}")
