@@ -111,10 +111,10 @@ I am a certified accessibility tester and have professional experience ensuring 
 
 I have extensive Ruby on Rails and fullstack development experience alongside Python and AI/ML work.
 
-I care deeply about accessible, inclusive AI interfaces and would prioritize accessible UX, ARIA best practices, and automated/manual accessibility testing in any production deployment.
+I care deeply about accessible, inclusive AI interfaces and would prioritize accessible UX, ARIA best practices, and automated/manual accessibility testing in any production deployment. The output and formatting of the agent is improved for screen readers, making summaries easier to read and compliant with accessibility standards.
 
-See the code example below for a quick accessibility markup stub.
-Accessibility would be a core focus of any future UI.
+See the code example below for a quick accessibility markup stub. 
+Accessibility would be a core focus of any future UI. 
 
 ```html
 <!DOCTYPE html>
@@ -198,6 +198,11 @@ Key enhancements address:
 
 This agent is structured to support the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction), an open standard for connecting LLMs and tools. 
 See `cdc_agent/mcp_stub.py` for an example integration stub. In production, this allows the agent to be used as a plug-and-play MCP server or to consume data/tools from any MCP-compliant client or server (such as Claude, Gemini, and future enterprise IDEs).
+
+## ⚡ Performance & Caching
+
+- The CDC scraper uses [requests-cache](https://requests-cache.readthedocs.io/) for disk-based HTTP caching. This accelerates repeat requests, avoids unnecessary load on .gov sites, and ensures reproducible, stable agent runs—critical for demos and regulated environments.
+- In production, the agent would use an official API if available, but for this POC, HTTP caching + BeautifulSoup scraping provides fast, stable results.
 
 Author
 John Harris
