@@ -7,12 +7,14 @@ import faiss
 import numpy as np
 from langchain_openai import OpenAIEmbeddings
 
-def chunk_text(text, chunk_size=500, overlap=100):
-    """Split text into overlapping chunks for embeddings/search."""
+def chunk_text(text, chunk_size=500, overlap=100, max_chunks=100):
+    """Split text into overlapping chunks for embeddings/search (with chunk cap)."""
     chunks = []
     i = 0
-    while i < len(text):
-        chunks.append(text[i:i+chunk_size])
+    while i < len(text) and len(chunks) < max_chunks:
+        chunk = text[i:i+chunk_size]
+        if len(chunk.strip()) > 10:  # Filter out empty/short
+            chunks.append(chunk)
         i += chunk_size - overlap
     return chunks
 
@@ -31,9 +33,10 @@ def retrieve_relevant_chunks(query, chunks, index, embedding_model, top_k=3):
     """Return top_k most relevant text chunks for the query."""
     query_vec = np.array(embedding_model.embed_query(query)).astype('float32').reshape(1, -1)
     D, I = index.search(query_vec, top_k)
-    return [chunks[i] for i in I[0]]
+    return [chunks[i] for i in I[0] if i < len(chunks)]
 
 def multi_vector_retrieve(query, dbs, embedding_model, top_k=3):
+    """Retrieve top_k chunks across multiple vector DBs."""
     all_results = []
     for db in dbs:
         chunks = db["chunks"]
@@ -42,8 +45,9 @@ def multi_vector_retrieve(query, dbs, embedding_model, top_k=3):
             np.array(embedding_model.embed_query(query)).astype('float32').reshape(1, -1),
             top_k
         )
-        results = [(chunks[i], D[0][j]) for j, i in enumerate(I[0])]
+        results = [(chunks[i], D[0][j]) for j, i in enumerate(I[0]) if i < len(chunks)]
         all_results.extend(results)
     # Sort by similarity (lowest distance first)
     all_results.sort(key=lambda x: x[1])
     return [r[0] for r in all_results[:top_k]]
+
