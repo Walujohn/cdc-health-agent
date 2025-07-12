@@ -204,6 +204,17 @@ See `cdc_agent/mcp_stub.py` for an example integration stub. In production, this
 - The CDC scraper uses [requests-cache](https://requests-cache.readthedocs.io/) for disk-based HTTP caching. This accelerates repeat requests, avoids unnecessary load on .gov sites, and ensures reproducible, stable agent runs—critical for demos and regulated environments.
 - In production, the agent would use an official API if available, but for this POC, HTTP caching + BeautifulSoup scraping provides fast, stable results.
 
+## ✨ 2025-07-12 Updates
+
+* **Async & Streaming Chatbot:**
+  Added a Gradio-based chatbot (`gradio_rag_async_multi.py`) that supports async multi-topic CDC.gov retrieval, FAISS RAG search, and OpenAI LLM streaming—offering a fast, interactive UI.
+
+* **FastAPI API Server:**
+  Introduced a FastAPI server (`fastapi_app.py`) for programmatic access. Supports async requests, high concurrency, and simple integration with web or enterprise applications.
+
+* **Enterprise-Ready RAG Pipeline:**
+  Refactored `rag.py` to be fully async, support multi-vector DB retrieval, and include final LLM summarization. This improves scalability, reliability, and enterprise demo readiness.
+
 Author
 John Harris
 GitHub: https://github.com/Walujohn

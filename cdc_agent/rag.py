@@ -1,14 +1,68 @@
 """
-rag.py: RAG utilities for chunking, embedding, building vector DBs (FAISS),
-and retrieving relevant chunks (single or multi-DB).
+rag.py: Async RAG utilities for chunking, embedding, vector DBs (FAISS),
+multi-topic CDC.gov retrieval, and OpenAI LLM summarization.
 """
 
+import os
+import asyncio
 import faiss
 import numpy as np
+import httpx
+from bs4 import BeautifulSoup
 from langchain_openai import OpenAIEmbeddings
+import openai
 
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# 1. Topic Detection
+def detect_topics(question):
+    q = question.lower()
+    topics = []
+    if "covid" in q or "coronavirus" in q:
+        topics.append("covid")
+    if "flu" in q or "influenza" in q:
+        topics.append("flu")
+    if "monkeypox" in q or "mpox" in q:
+        topics.append("monkeypox")
+    if not topics:
+        topics = ["covid"]  # Default
+    return topics
+
+# 2. Async CDC.gov Scraper
+async def fetch_links_and_content_async(start_url, max_depth=1):
+    visited = set()
+    queue = [(start_url, 0)]
+    all_text = []
+    async with httpx.AsyncClient(timeout=10) as client:
+        while queue:
+            url, depth = queue.pop(0)
+            if url in visited or depth > max_depth:
+                continue
+            visited.add(url)
+            try:
+                resp = await client.get(url)
+                soup = BeautifulSoup(resp.text, "html.parser")
+                all_text.append(soup.get_text(separator=" ", strip=True))
+                if depth < max_depth:
+                    for a in soup.find_all("a", href=True):
+                        link = a["href"]
+                        if link.startswith("https://www.cdc.gov") and link not in visited:
+                            queue.append((link, depth+1))
+            except Exception as e:
+                print(f"Failed to fetch {url}: {e}")
+    return "\n".join(all_text)
+
+async def fetch_cdc_guidance_async(topic, max_depth=1):
+    topic_urls = {
+        "covid": "https://www.cdc.gov/coronavirus/2019-ncov/index.html",
+        "flu": "https://www.cdc.gov/flu/index.htm",
+        "monkeypox": "https://www.cdc.gov/mpox/index.html"
+    }
+    url = topic_urls.get(topic, "https://www.cdc.gov/")
+    return await fetch_links_and_content_async(url, max_depth)
+
+# 3. RAG Utilities
 def chunk_text(text, chunk_size=500, overlap=100, max_chunks=100):
-    """Split text into overlapping chunks for embeddings/search (with chunk cap)."""
     chunks = []
     i = 0
     while i < len(text) and len(chunks) < max_chunks:
@@ -19,24 +73,20 @@ def chunk_text(text, chunk_size=500, overlap=100, max_chunks=100):
     return chunks
 
 def embed_chunks(chunks, embedding_model):
-    """Get embeddings for each chunk using the provided embedding model."""
     return embedding_model.embed_documents(chunks)
 
 def build_faiss_index(chunks, embeddings):
-    """Build a FAISS index from text chunks and their embeddings."""
     d = len(embeddings[0])
     index = faiss.IndexFlatL2(d)
     index.add(np.array(embeddings).astype('float32'))
     return index
 
 def retrieve_relevant_chunks(query, chunks, index, embedding_model, top_k=3):
-    """Return top_k most relevant text chunks for the query."""
     query_vec = np.array(embedding_model.embed_query(query)).astype('float32').reshape(1, -1)
     D, I = index.search(query_vec, top_k)
     return [chunks[i] for i in I[0] if i < len(chunks)]
 
 def multi_vector_retrieve(query, dbs, embedding_model, top_k=3):
-    """Retrieve top_k chunks across multiple vector DBs."""
     all_results = []
     for db in dbs:
         chunks = db["chunks"]
@@ -50,4 +100,41 @@ def multi_vector_retrieve(query, dbs, embedding_model, top_k=3):
     # Sort by similarity (lowest distance first)
     all_results.sort(key=lambda x: x[1])
     return [r[0] for r in all_results[:top_k]]
+
+# 4. Full Async Multi-Topic RAG Pipeline with OpenAI LLM Summarization (Streaming)
+async def async_multi_topic_rag(question):
+    # Detect topics
+    topics = detect_topics(question)
+    # Async CDC.gov fetch
+    fetch_tasks = [fetch_cdc_guidance_async(topic, max_depth=1) for topic in topics]
+    topic_texts = await asyncio.gather(*fetch_tasks)
+    embedding_model = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
+    dbs = []
+    for topic, text in zip(topics, topic_texts):
+        chunks = chunk_text(text)
+        if not chunks:
+            continue
+        embeddings = embed_chunks(chunks, embedding_model)
+        if not embeddings:
+            continue
+        index = build_faiss_index(chunks, embeddings)
+        dbs.append({"topic": topic, "chunks": chunks, "index": index})
+    if not dbs:
+        return "Sorry, couldn't fetch CDC.gov content for those topics."
+    relevant_chunks = multi_vector_retrieve(question, dbs, embedding_model, top_k=3)
+    context = "\n".join(relevant_chunks)
+    # Final LLM Summarization (OpenAI streaming, returns full result for API; for Gradio use yield in UI)
+    prompt = f"""Here is some CDC.gov content:\n{context}\n\nAnswer this question as simply and accurately as possible:\n{question}"""
+    client = openai.AsyncOpenAI(api_key=OPENAI_API_KEY)
+    answer = ""
+    stream = await client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}],
+        stream=True
+    )
+    async for chunk in stream:
+        delta = chunk.choices[0].delta.content or ""
+        answer += delta
+    return answer
+
 
