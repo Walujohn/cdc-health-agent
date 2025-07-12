@@ -1,0 +1,23 @@
+# Ignore virtual environments
+venv/
+env/
+
+# MLflow and experiment artifacts
+mlruns/
+artifacts/
+runs/
+
+# Logs, caches, temp files
+*.log
+*.tmp
+*.cache
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
