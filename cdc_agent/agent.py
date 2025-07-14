@@ -2,12 +2,13 @@ import mlflow
 from langgraph.graph import StateGraph
 from typing_extensions import TypedDict
 import os
+import time
 
+from cdc_agent.config import CONFIG
+from cdc_agent.utils import flatten_dict
 from cdc_agent.tools.cdc_scraper import fetch_cdc_guidance
 from cdc_agent.rag import chunk_text, embed_chunks, build_faiss_index, multi_vector_retrieve
-
 from cdc_agent.llm import get_llm_provider
-
 from langchain_openai import OpenAIEmbeddings
 
 class AgentState(TypedDict):
@@ -16,13 +17,7 @@ class AgentState(TypedDict):
     cdc_info: str
     summary: str
 
-# --- Guardrails Stub ---
 def apply_guardrails(text):
-    """
-    Stub for LLM output guardrails.
-    In production, integrate policy checks here (e.g., with Nemo Guardrails, LangChain OutputParser, or custom code).
-    For demo, redacts the word 'password' and email addresses as a placeholder.
-    """
     import re
     text = re.sub(r'\b[\w.-]+?@\w+?\.\w+?\b', '[REDACTED EMAIL]', text)
     text = text.replace("password", "[REDACTED]")
@@ -74,40 +69,29 @@ def summarize_node(state: AgentState, dbs, embedding_model) -> AgentState:
     print(f"[LOG] LLM prompt sent:\n{'-'*40}\n{prompt[:400]}...\n{'-'*40}")
     summary_msg = llm.invoke(prompt)
     summary_text = summary_msg.content if hasattr(summary_msg, "content") else str(summary_msg)
-    summary_text = apply_guardrails(summary_text)  # <-- Guardrails applied here
+    summary_text = apply_guardrails(summary_text)
     print(f"[LOG] LLM summary output length: {len(summary_text)} chars")
     return {"summary": summary_text, "cdc_info": context}
 
 def cdc_source_url(topic: str) -> str:
-    if topic == "flu":
-        return "https://www.cdc.gov/flu/"
-    elif topic == "monkeypox":
-        return "https://www.cdc.gov/mpox/"
-    else:
-        return "https://www.cdc.gov/coronavirus/2019-ncov/"
+    return CONFIG["cdc_urls"].get(topic, CONFIG["cdc_urls"]["covid"])
 
 def format_for_accessibility(text):
-    """Format output for improved screen reader accessibility."""
     if len(text) > 300 and any(w in text.lower() for w in ["symptoms", "steps", "guidelines"]):
         bullets = [line.strip() for line in text.split(".") if line.strip()]
         return "\n- " + "\n- ".join(bullets)
     return text
 
 def main():
-    import time
-
     run_id = f"cdc-agent-{int(time.time())}"
     with mlflow.start_run(run_name=run_id):
-        mlflow.set_tag("agent_type", "LangGraph RAG CDC multi-vector")
-        mlflow.log_param("embedding_model", "OpenAIEmbeddings")
-        mlflow.log_param("llm_model", os.getenv("LLM_PROVIDER", "openai"))
-        mlflow.log_param("project", "cdc-agent")
+        mlflow.log_params(flatten_dict(CONFIG))  # Log ALL config values automatically
 
         print("📡 CDC Health Agent (LangGraph + Multi-DB RAG demo + MLflow)")
-        print("Topics supported: COVID, flu, mpox (monkeypox).")
+        print("Topics supported:", ", ".join(CONFIG["cdc_urls"].keys()))
         question = input("Ask a CDC-related health question: ")
 
-        topics = ["covid", "flu", "monkeypox"]
+        topics = list(CONFIG["cdc_urls"].keys())
         embedding_model = OpenAIEmbeddings(openai_api_key=os.getenv("OPENAI_API_KEY"))
         topic_to_content = fetch_all_cdc_guidance(topics, max_depth=1)
         dbs = build_all_vector_dbs(topic_to_content, embedding_model)

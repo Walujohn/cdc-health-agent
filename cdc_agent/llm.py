@@ -1,26 +1,29 @@
 import os
 
-def get_llm_provider(model=None):
+def get_llm_provider(model=None, provider=None):
     """
-    Returns an LLM object from OpenAI, Vertex AI, or Anthropic based on env variables.
-
-    Set LLM_PROVIDER to "openai", "vertex", or "anthropic" to control which one is used.
+    Returns an LLM object from OpenAI, Vertex AI, or Anthropic based on config/env.
+    Usage:
+        get_llm_provider()                   # Uses env/config
+        get_llm_provider(model="gpt-4")      # Override model
+        get_llm_provider(provider="vertex")  # Override provider
     """
-    provider = os.getenv("LLM_PROVIDER", "openai").lower()  # Always lower for consistency
+    provider = provider or os.getenv("LLM_PROVIDER", "openai").lower()
+    model = model or os.getenv("LLM_MODEL", "gpt-3.5-turbo")
 
     if provider == "openai":
         from langchain_openai import ChatOpenAI
-        return ChatOpenAI(api_key=os.getenv("OPENAI_API_KEY"), model=model or "gpt-3.5-turbo")
+        return ChatOpenAI(api_key=os.getenv("OPENAI_API_KEY"), model=model)
 
     elif provider == "vertex":
-        # This block is a stub -- adjust for actual Vertex AI integration!
+        # Example stub — update for Vertex in your env!
         from vertexai.language_models import TextGenerationModel
-        # For Google Vertex AI, authentication will need extra setup!
-        return TextGenerationModel.from_pretrained(model or "text-bison@001")
-    
+        return TextGenerationModel.from_pretrained(model)
+
     elif provider == "anthropic":
         from langchain_anthropic import Anthropic
-        return Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"), model=model or "claude-3-haiku-20240307")
-    
+        return Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"), model=model)
+
     else:
         raise ValueError(f"Unknown LLM provider: {provider}")
+

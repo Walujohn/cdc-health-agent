@@ -12,23 +12,20 @@ from bs4 import BeautifulSoup
 from langchain_openai import OpenAIEmbeddings
 import openai
 
+from cdc_agent.config import CONFIG
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# 1. Topic Detection
 def detect_topics(question):
     q = question.lower()
     topics = []
-    if "covid" in q or "coronavirus" in q:
-        topics.append("covid")
-    if "flu" in q or "influenza" in q:
-        topics.append("flu")
-    if "monkeypox" in q or "mpox" in q:
-        topics.append("monkeypox")
+    for key in CONFIG["cdc_urls"]:
+        if key in q or (key == "covid" and "coronavirus" in q):
+            topics.append(key)
     if not topics:
-        topics = ["covid"]  # Default
+        topics = ["covid"]
     return topics
 
-# 2. Async CDC.gov Scraper
 async def fetch_links_and_content_async(start_url, max_depth=1):
     visited = set()
     queue = [(start_url, 0)]
@@ -53,21 +50,18 @@ async def fetch_links_and_content_async(start_url, max_depth=1):
     return "\n".join(all_text)
 
 async def fetch_cdc_guidance_async(topic, max_depth=1):
-    topic_urls = {
-        "covid": "https://www.cdc.gov/coronavirus/2019-ncov/index.html",
-        "flu": "https://www.cdc.gov/flu/index.htm",
-        "monkeypox": "https://www.cdc.gov/mpox/index.html"
-    }
-    url = topic_urls.get(topic, "https://www.cdc.gov/")
+    url = CONFIG["cdc_urls"].get(topic, "https://www.cdc.gov/")
     return await fetch_links_and_content_async(url, max_depth)
 
-# 3. RAG Utilities
-def chunk_text(text, chunk_size=500, overlap=100, max_chunks=100):
+def chunk_text(text, chunk_size=None, overlap=None, max_chunks=None):
+    chunk_size = chunk_size or CONFIG["chunk_size"]
+    overlap = overlap or CONFIG["overlap"]
+    max_chunks = max_chunks or CONFIG["max_chunks"]
     chunks = []
     i = 0
     while i < len(text) and len(chunks) < max_chunks:
         chunk = text[i:i+chunk_size]
-        if len(chunk.strip()) > 10:  # Filter out empty/short
+        if len(chunk.strip()) > 10:
             chunks.append(chunk)
         i += chunk_size - overlap
     return chunks
@@ -97,15 +91,11 @@ def multi_vector_retrieve(query, dbs, embedding_model, top_k=3):
         )
         results = [(chunks[i], D[0][j]) for j, i in enumerate(I[0]) if i < len(chunks)]
         all_results.extend(results)
-    # Sort by similarity (lowest distance first)
     all_results.sort(key=lambda x: x[1])
     return [r[0] for r in all_results[:top_k]]
 
-# 4. Full Async Multi-Topic RAG Pipeline with OpenAI LLM Summarization (Streaming)
 async def async_multi_topic_rag(question):
-    # Detect topics
     topics = detect_topics(question)
-    # Async CDC.gov fetch
     fetch_tasks = [fetch_cdc_guidance_async(topic, max_depth=1) for topic in topics]
     topic_texts = await asyncio.gather(*fetch_tasks)
     embedding_model = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
@@ -123,12 +113,11 @@ async def async_multi_topic_rag(question):
         return "Sorry, couldn't fetch CDC.gov content for those topics."
     relevant_chunks = multi_vector_retrieve(question, dbs, embedding_model, top_k=3)
     context = "\n".join(relevant_chunks)
-    # Final LLM Summarization (OpenAI streaming, returns full result for API; for Gradio use yield in UI)
     prompt = f"""Here is some CDC.gov content:\n{context}\n\nAnswer this question as simply and accurately as possible:\n{question}"""
     client = openai.AsyncOpenAI(api_key=OPENAI_API_KEY)
     answer = ""
     stream = await client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model=CONFIG["llm_model"],
         messages=[{"role": "user", "content": prompt}],
         stream=True
     )
