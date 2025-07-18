@@ -1,15 +1,15 @@
 import os
 import time
-import asyncio
 import mlflow
-from fastapi import FastAPI, Depends, Header, HTTPException
+from fastapi import FastAPI, Depends, Header, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from cdc_agent.config import CONFIG
 from cdc_agent.rag import async_multi_topic_rag
+from cdc_agent.mlops_jobs import cdc_guidance_drift_job
 
-API_KEY = os.getenv("API_KEY", "changeme")  # Set this in your shell/env!
+API_KEY = os.getenv("API_KEY", "changeme")  # Set in shell/env for prod
 
 def check_api_key(x_api_key: str = Header(...)):
     if x_api_key != API_KEY:
@@ -30,7 +30,7 @@ app.add_middleware(
 
 class QueryRequest(BaseModel):
     question: str
-    chunk_size: int | None = None  # New: Optional chunk_size
+    chunk_size: int | None = None  # Optional experiment param
 
 @app.post("/ask")
 async def ask_rag(
@@ -87,6 +87,18 @@ async def ask_rag_stream(
                 mlflow.log_param("error", str(e))
                 yield f"data: [ERROR] {str(e)}\n\n"
     return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+# --- Background Experiment Job Example ---
+@app.post("/run-guidance-drift")
+async def run_guidance_drift_endpoint(
+    background_tasks: BackgroundTasks, api_key: str = Depends(check_api_key)
+):
+    """
+    Triggers a background drift experiment/job.
+    Returns immediately; job runs in the background and logs to MLflow.
+    """
+    background_tasks.add_task(cdc_guidance_drift_job)
+    return {"status": "Drift experiment triggered in background. Check MLflow for results."}
 
 @app.get("/health")
 async def health():

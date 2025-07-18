@@ -215,6 +215,26 @@ See `cdc_agent/mcp_stub.py` for an example integration stub. In production, this
 * **Enterprise-Ready RAG Pipeline:**
   Refactored `rag.py` to be fully async, support multi-vector DB retrieval, and include final LLM summarization. This improves scalability, reliability, and enterprise demo readiness.
 
+🚦 MLOps Experiments & Background Jobs
+
+MLflow Tracking: All API calls and jobs are logged to MLflow (parameters, latency, results).
+
+Experiment with Hyperparameters: /ask and /ask/stream endpoints accept an optional chunk_size param, letting you track and compare vector search quality/latency in MLflow.
+
+Background MLOps Jobs:
+
+Use /run-guidance-drift to trigger a background CDC drift/check experiment, logged in MLflow.
+
+See cdc_agent/mlops_jobs.py for modular MLOps job definitions.
+
+To run MLflow UI locally:
+
+mlflow ui
+
+# Visit http://localhost:5000 in your browser
+
+Security: All endpoints require an API key (set via env variable API_KEY).
+
 Author
 John Harris
 GitHub: https://github.com/Walujohn
